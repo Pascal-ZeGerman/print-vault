@@ -343,6 +343,16 @@ Before pulling any updates, create a backup from within the application:
 3. Click **"Export Data"** and save the backup ZIP file to your computer
 4. **Important:** Keep this backup safe! It contains all your data and uploaded files
 
+### Step 1.5: Backup Docker Volumes (Recommended)
+
+For users on native volumes, also backup the Docker volumes:
+
+```bash
+./scripts/backup-volumes.sh
+```
+
+This creates timestamped backups in `./backups/` that can be restored if needed.
+
 ### Step 2: Backup Database (Additional Safety)
 
 For extra safety, also create a direct database backup:
