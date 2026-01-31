@@ -2,8 +2,13 @@
 
 # This script waits for the database to be ready before starting the web server.
 
+# Get database configuration from environment (with defaults)
+DB_HOST="${POSTGRES_HOST:-db}"
+DB_PORT="${POSTGRES_PORT:-5432}"
+DB_USER="${POSTGRES_USER:-postgres}"
+
 # The until loop will continue until the command `pg_isready` succeeds.
-until pg_isready -h db -p 5432 -U postgres; do
+until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
   echo "Waiting for the database to be ready..."
   sleep 2
 done
