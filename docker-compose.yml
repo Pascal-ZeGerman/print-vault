@@ -10,7 +10,7 @@ services:
     expose:
       - "8000"
     ports:
-      - "8000:8000" # Expose port 8000 to the host machine
+      - "${BACKEND_PORT:-8000}:8000" # Expose backend port (default 8000) to the host machine
     environment:
       - DJANGO_SETTINGS_MODULE=backend.production
       - PYTHONPATH=/code
