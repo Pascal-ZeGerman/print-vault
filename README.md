@@ -202,6 +202,134 @@ That's it! Your instance of Print Vault is now running. You can access it in you
 
 ---
 
+## Docker Volume Management
+
+Print Vault now uses Docker native volumes for data storage, making your installation more portable, easier to backup, and aligned with Docker best practices.
+
+### Why Native Volumes?
+
+**Easier Backups & Migrations**
+- Move your entire Print Vault between servers with simple Docker commands
+- No need to worry about file permissions or ownership issues
+- Backup and restore your data independently of the application code
+
+**Cleaner Installation**
+- Your Print Vault directory stays clean - no `./data/` folders cluttering your git repository
+- Updates are simpler - just pull the latest code without managing data directories
+- Data persists independently of container lifecycle
+
+**Better Portability**
+- Transfer volumes between hosts using standard Docker tools
+- Works consistently across different operating systems (Linux, macOS, Windows)
+- Cloud-ready: easily migrate to managed hosting platforms
+
+### Understanding Your Volumes
+
+Three volumes store your data:
+- **`media_volume`** - User uploads (photos, project files, tracker files)
+- **`postgres_volume`** - Database data
+- **`static_volume`** - Compiled frontend assets (auto-generated)
+
+Docker manages these volumes for you, ensuring data persistence and portability.
+
+### Viewing Volume Information
+
+```bash
+# List all Print Vault volumes
+docker volume ls | grep print-vault
+
+# Inspect a specific volume
+docker volume inspect print-vault_media_volume
+
+# See volume sizes
+docker system df -v
+```
+
+### Backing Up Volumes
+
+Backups are now simpler with native volumes - just run the backup script:
+
+```bash
+chmod +x scripts/backup-volumes.sh
+./scripts/backup-volumes.sh
+```
+
+Backups are stored in `./backups/` as timestamped tar.gz files. These archives are portable and can be restored on any Print Vault installation.
+
+**Manual backup (if needed):**
+```bash
+# Backup media files
+docker run --rm \
+    -v print-vault_media_volume:/data:ro \
+    -v $(pwd)/backups:/backup \
+    alpine tar czf /backup/media_backup.tar.gz -C /data .
+
+# Backup postgres data
+docker run --rm \
+    -v print-vault_postgres_volume:/data:ro \
+    -v $(pwd)/backups:/backup \
+    alpine tar czf /backup/postgres_backup.tar.gz -C /data .
+```
+
+### Restoring Volumes
+
+Restore from any previous backup with one command:
+
+```bash
+chmod +x scripts/restore-volumes.sh
+./scripts/restore-volumes.sh
+```
+
+Follow the prompts to select a backup timestamp. The script handles everything automatically.
+
+### Migrating from Bind Mounts (Existing Users)
+
+If you're upgrading from a version that used `./data/` directories, we've made migration seamless:
+
+```bash
+chmod +x scripts/migrate-to-native-volumes.sh
+./scripts/migrate-to-native-volumes.sh
+```
+
+This script will:
+1. Stop containers safely
+2. Create named volumes
+3. Copy all your data from `./data/` to named volumes
+4. Restart containers with native volumes
+5. Preserve your old `./data/` directories as backup
+
+**Zero data loss** - your original files stay in `./data/` until you verify everything works. After confirming your installation is working perfectly, you can clean up:
+
+```bash
+rm -rf ./data/
+```
+
+### Moving Between Servers
+
+Migration is now dramatically simpler. No more worrying about tar commands or directory structures.
+
+**On source server:**
+```bash
+./scripts/backup-volumes.sh
+# Copy backups/ directory to new server
+```
+
+**On destination server:**
+```bash
+# Install Print Vault
+git clone https://github.com/shaxs/print-vault.git
+cd print-vault
+cp .env.example .env
+# Edit .env with your settings
+
+# Copy backups/ directory here
+./scripts/restore-volumes.sh
+```
+
+Your entire Print Vault - database, uploads, everything - moves with just two commands.
+
+---
+
 ## Upgrading Print Vault
 
 When a new version of Print Vault is released, follow these steps to safely upgrade your installation. **Always create a backup before upgrading!**
