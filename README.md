@@ -173,18 +173,18 @@ ALLOWED_HOSTS='192.168.1.100,localhost,127.0.0.1'
 # 7. Application Port
 # The external port the application will be accessible on.
 APP_PORT='5173'
+
+# Optional: Backend API Port (defaults to 8000)
+# BACKEND_PORT='8000'
+
+# Optional: Database Host (defaults to 'db' for Docker Compose)
+# POSTGRES_HOST='db'
+
+# Optional: Database Port (defaults to 5432)
+# POSTGRES_PORT='5432'
 ```
 
-### Step 3: Create Data Directories
-
-These folders will persistently store your application's database and your uploaded photos and files, keeping them safe even when the containers are updated.
-
-```bash
-mkdir -p ./data/postgres
-mkdir -p ./data/media
-```
-
-### Step 4: Build and Run the Application
+### Step 3: Build and Run the Application
 
 This single command will build the Docker images and start all the necessary services in the background.
 
@@ -194,7 +194,7 @@ docker compose up --build -d
 
 The first time you run this, it may take several minutes to download the base images and build the application.
 
-### Step 5: Access Print Vault
+### Step 4: Access Print Vault
 
 That's it! Your instance of Print Vault is now running. You can access it in your web browser by navigating to the IP address and port you configured in your `.env` file.
 
