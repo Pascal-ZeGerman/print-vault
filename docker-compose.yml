@@ -3,7 +3,8 @@ services:
     build: .
     restart: unless-stopped
     env_file:
-      - .env
+      - path: .env
+        required: false
     volumes:
       - media_volume:/code/media
       - static_volume:/code/staticfiles
